@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交互式圣诞树</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #0a2e38, #1a5f7a);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            color: #ffdd40;
+            text-shadow: 0 0 10px rgba(255, 221, 64, 0.7);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a8e6cf;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+        }
+        
+        .tree-section {
+            flex: 1;
+            min-width: 300px;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .tree-container {
+            position: relative;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        
+        /* 圣诞树主体 */
+        .tree {
+            position: relative;
+            width: 300px;
+            height: 500px;
+        }
+        
+        .tree-layer {
+            position: absolute;
+            width: 0;
+            height: 0;
+            border-left: 75px solid transparent;
+            border-right: 75px solid transparent;
+            border-bottom: 100px solid;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .layer-1 {
+            bottom: 0;
+            border-bottom-color: #0a7e0a;
+            z-index: 1;
+        }
+        
+        .layer-2 {
+            bottom: 80px;
+            border-bottom-color: #0b9e0b;
+            width: 0;
+            height: 0;
+            border-left: 65px solid transparent;
+            border-right: 65px solid transparent;
+            border-bottom: 90px solid #0b9e0b;
+            z-index: 2;
+        }
+        
+        .layer-3 {
+            bottom: 150px;
+            border-bottom-color: #0dbd0d;
+            width: 0;
+            height: 0;
+            border-left: 55px solid transparent;
+            border-right: 55px solid transparent;
+            border-bottom: 80px solid #0dbd0d;
+            z-index: 3;
+        }
+        
+        .layer-4 {
+            bottom: 210px;
+            border-bottom-color: #0fdb0f;
+            width: 0;
+            height: 0;
+            border-left: 45px solid transparent;
+            border-right: 45px solid transparent;
+            border-bottom: 70px solid #0fdb0f;
+            z-index: 4;
+        }
+        
+        .layer-5 {
+            bottom: 260px;
+            border-bottom-color: #11f911;
+            width: 0;
+            height: 0;
+            border-left: 35px solid transparent;
+            border-right: 35px solid transparent;
+            border-bottom: 60px solid #11f911;
+            z-index: 5;
+        }
+        
+        .tree-trunk {
+            position: absolute;
+            width: 30px;
+            height: 60px;
+            background-color: #8B4513;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+        
+        /* 装饰品 */
+        .decoration {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 10;
+        }
+        
+        .decoration:hover {
+            transform: scale(1.3);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+        }
+        
+        .decoration.red {
+            background-color: #ff4d4d;
+            box-shadow: 0 0 10px #ff4d4d;
+        }
+        
+        .decoration.blue {
+            background-color: #4d79ff;
+            box-shadow: 0 0 10px #4d79ff;
+        }
+        
+        .decoration.yellow {
+            background-color: #ffff4d;
+            box-shadow: 0 0 10px #ffff4d;
+        }
+        
+        .decoration.purple {
+            background-color: #cc4dff;
+            box-shadow: 0 0 10px #cc4dff;
+        }
+        
+        .decoration.gold {
+            background-color: #ffcc00;
+            box-shadow: 0 0 10px #ffcc00;
+        }
+        
+        /* 星星 */
+        .star {
+            position: absolute;
+            top: 255px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: #ffdd40;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            box-shadow: 0 0 20px #ffdd40;
+            z-index: 6;
+            animation: star-twinkle 2s infinite alternate;
+        }
+        
+        @keyframes star-twinkle {
+            0% { opacity: 0.8; transform: translateX(-50%) scale(1); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+        }
+        
+        /* 礼物 */
+        .gifts {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 1;
+        }
+        
+        .gift {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+        
+        .gift-box {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+        
+        .gift-1 .gift-box {
+            background-color: #ff4d4d;
+        }
+        
+        .gift-2 .gift-box {
+            background-color: #4d79ff;
+        }
+        
+        .gift-3 .gift-box {
+            background-color: #ffff4d;
+        }
+        
+        .gift-lid {
+            width: 100%;
+            height: 15px;
+            position: absolute;
+            top: -10px;
+        }
+        
+        .gift-1 .gift-lid {
+            background-color: #ff3333;
+        }
+        
+        .gift-2 .gift-lid {
+            background-color: #3366ff;
+        }
+        
+        .gift-3 .gift-lid {
+            background-color: #ffcc00;
+        }
+        
+        .gift-bow {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .gift-bow:before, .gift-bow:after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+        }
+        
+        .gift-bow:before {
+            top: 5px;
+        }
+        
+        .gift-bow:after {
+            bottom: 5px;
+        }
+        
+        /* 控制面板 */
+        .controls {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls h2 {
+            color: #ffdd40;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2rem;
+        }
+        
+        .control-group {
+            margin-bottom: 25px;
+        }
+        
+        .control-group h3 {
+            color: #a8e6cf;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .btn.active {
+            background: #ffdd40;
+            color: #0a2e38;
+            box-shadow: 0 5px 15px rgba(255, 221, 64, 0.4);
+        }
+        
+        .lights-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #4CAF50;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        /* 灯光效果 */
+        .light {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: light-twinkle 1.5s infinite alternate;
+            z-index: 5;
+        }
+        
+        @keyframes light-twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        /* 雪花 */
+        .snow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+        
+        .snowflake {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+        
+        /* 祝福语 */
+        .greeting {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            max-width: 800px;
+        }
+        
+        .greeting h3 {
+            color: #ffdd40;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .greeting p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #e0f7fa;
+        }
+        
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            color: #a8e6cf;
+            padding: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .tree-container {
+                height: 500px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tree"></i> 圣诞快乐 <i class="fas fa-tree"></i></h1>
+            <p class="subtitle">点击装饰品或使用控制面板自定义您的圣诞树</p>
+        </header>
+        
+        <div class="content">
+            <div class="tree-section">
+                <div class="tree-container">
+                    <!-- 圣诞树 -->
+                    <div class="tree">
+                        <div class="tree-layer layer-1"></div>
+                        <div class="tree-layer layer-2"></div>
+                        <div class="tree-layer layer-3"></div>
+                        <div class="tree-layer layer-4"></div>
+                        <div class="tree-layer layer-5"></div>
+                        <div class="tree-trunk"></div>
+                        <div class="star"></div>
+                        
+                        <!-- 装饰品将通过JS动态添加 -->
+                        
+                        <!-- 灯光将通过JS动态添加 -->
+                    </div>
+                    
+                    <!-- 礼物 -->
+                    <div class="gifts">
+                        <div class="gift gift-1">
+                            <div class="gift-box"></div>
+                            <div class="gift-lid"></div>
+                            <div class="gift-bow"></div>
+                        </div>
+                        <div class="gift gift-2">
+                            <div class="gift-box"></div>
+                            <div class="gift-lid"></div>
+                            <div class="gift-bow"></div>
+                        </div>
+                        <div class="gift gift-3">
+                            <div class="gift-box"></div>
+                            <div class="gift-lid"></div>
+                            <div class="gift-bow"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <h2><i class="fas fa-sliders-h"></i> 圣诞树控制面板</h2>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-palette"></i> 装饰颜色</h3>
+                    <div class="control-buttons">
+                        <button class="btn" id="redDecorations">
+                            <i class="fas fa-circle" style="color: #ff4d4d;"></i> 红色装饰
+                        </button>
+                        <button class="btn" id="blueDecorations">
+                            <i class="fas fa-circle" style="color: #4d79ff;"></i> 蓝色装饰
+                        </button>
+                        <button class="btn active" id="multiDecorations">
+                            <i class="fas fa-random"></i> 多彩装饰
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-lightbulb"></i> 灯光效果</h3>
+                    <div class="lights-control">
+                        <span>关闭</span>
+                        <label class="switch">
+                            <input type="checkbox" id="lightsToggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span>开启</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-snowflake"></i> 下雪效果</h3>
+                    <div class="lights-control">
+                        <span>关闭</span>
+                        <label class="switch">
+                            <input type="checkbox" id="snowToggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span>开启</span>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-candy-cane"></i> 树顶星星</h3>
+                    <div class="control-buttons">
+                        <button class="btn active" id="starOn">
+                            <i class="fas fa-star" style="color: #ffdd40;"></i> 亮起
+                        </button>
+                        <button class="btn" id="starOff">
+                            <i class="far fa-star"></i> 关闭
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-gift"></i> 礼物</h3>
+                    <div class="control-buttons">
+                        <button class="btn active" id="giftsOn">
+                            <i class="fas fa-box-open"></i> 显示礼物
+                        </button>
+                        <button class="btn" id="giftsOff">
+                            <i class="fas fa-box"></i> 隐藏礼物
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="control-group">
+                    <h3><i class="fas fa-magic"></i> 快速操作</h3>
+                    <div class="control-buttons">
+                        <button class="btn" id="resetTree">
+                            <i class="fas fa-redo"></i> 重置圣诞树
+                        </button>
+                        <button class="btn" id="randomDecorations">
+                            <i class="fas fa-random"></i> 随机装饰
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="greeting">
+            <h3>圣诞祝福</h3>
+            <p>愿这个圣诞季节带给您欢乐、和平与温暖。愿您与所爱之人共享美好时光，创造珍贵回忆。祝您圣诞快乐，新年快乐！</p>
+            <p style="margin-top: 15px; font-style: italic;">✨ 点击树上的装饰品可以改变它们的颜色 ✨</p>
+        </div>
+        
+        <footer>
+            <p>© 2023 交互式圣诞树 | 使用HTML、CSS和JavaScript创建</p>
+        </footer>
+        
+        <!-- 雪花容器 -->
+        <div class="snow" id="snowContainer"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tree = document.querySelector('.tree');
+            const snowContainer = document.getElementById('snowContainer');
+            const lightsToggle = document.getElementById('lightsToggle');
+            const snowToggle = document.getElementById('snowToggle');
+            const starOnBtn = document.getElementById('starOn');
+            const starOffBtn = document.getElementById('starOff');
+            const giftsOnBtn = document.getElementById('giftsOn');
+            const giftsOffBtn = document.getElementById('giftsOff');
+            const resetBtn = document.getElementById('resetTree');
+            const randomBtn = document.getElementById('randomDecorations');
+            const redDecorationsBtn = document.getElementById('redDecorations');
+            const blueDecorationsBtn = document.getElementById('blueDecorations');
+            const multiDecorationsBtn = document.getElementById('multiDecorations');
+            const star = document.querySelector('.star');
+            const gifts = document.querySelector('.gifts');
+            
+            let decorations = [];
+            let lights = [];
+            let decorationColorMode = 'multi'; // 'red', 'blue', 'multi'
+            let snowInterval;
+            
+            // 初始化装饰品
+            function initDecorations() {
+                // 清除现有装饰品
+                decorations.forEach(decoration => {
+                    if (decoration.parentNode) {
+                        decoration.parentNode.removeChild(decoration);
+                    }
+                });
+                decorations = [];
+                
+                // 装饰品位置
+                const decorationPositions = [
+                    // 第一层
+                    { left: '50%', bottom: '30px' },
+                    { left: '40%', bottom: '50px' },
+                    { left: '60%', bottom: '50px' },
+                    // 第二层
+                    { left: '50%', bottom: '110px' },
+                    { left: '45%', bottom: '130px' },
+                    { left: '55%', bottom: '130px' },
+                    { left: '40%', bottom: '150px' },
+                    { left: '60%', bottom: '150px' },
+                    // 第三层
+                    { left: '50%', bottom: '180px' },
+                    { left: '47%', bottom: '200px' },
+                    { left: '53%', bottom: '200px' },
+                    { left: '44%', bottom: '220px' },
+                    { left: '56%', bottom: '220px' },
+                    // 第四层
+                    { left: '50%', bottom: '240px' },
+                    { left: '48%', bottom: '260px' },
+                    { left: '52%', bottom: '260px' },
+                    // 第五层
+                    { left: '50%', bottom: '290px' },
+                ];
+                
+                // 创建装饰品
+                decorationPositions.forEach(pos => {
+                    const decoration = document.createElement('div');
+                    decoration.className = 'decoration';
+                    
+                    // 设置颜色
+                    setDecorationColor(decoration);
+                    
+                    // 设置位置
+                    decoration.style.left = pos.left;
+                    decoration.style.bottom = pos.bottom;
+                    
+                    // 添加点击事件
+                    decoration.addEventListener('click', function() {
+                        cycleDecorationColor(this);
+                    });
+                    
+                    tree.appendChild(decoration);
+                    decorations.push(decoration);
+                });
+            }
+            
+            // 设置装饰品颜色
+            function setDecorationColor(decoration) {
+                // 移除所有颜色类
+                decoration.classList.remove('red', 'blue', 'yellow', 'purple', 'gold');
+                
+                let colorClass;
+                if (decorationColorMode === 'red') {
+                    colorClass = 'red';
+                } else if (decorationColorMode === 'blue') {
+                    colorClass = 'blue';
+                } else {
+                    // 多彩模式 - 随机选择颜色
+                    const colors = ['red', 'blue', 'yellow', 'purple', 'gold'];
+                    colorClass = colors[Math.floor(Math.random() * colors.length)];
+                }
+                
+                decoration.classList.add(colorClass);
+            }
+            
+            // 循环装饰品颜色
+            function cycleDecorationColor(decoration) {
+                const colors = ['red', 'blue', 'yellow', 'purple', 'gold'];
+                const currentColor = Array.from(decoration.classList).find(cls => 
+                    colors.includes(cls)
+                );
+                
+                let nextIndex = 0;
+                if (currentColor) {
+                    nextIndex = (colors.indexOf(currentColor) + 1) % colors.length;
+                }
+                
+                decoration.classList.remove(...colors);
+                decoration.classList.add(colors[nextIndex]);
+            }
+            
+            // 初始化灯光
+            function initLights() {
+                // 清除现有灯光
+                lights.forEach(light => {
+                    if (light.parentNode) {
+                        light.parentNode.removeChild(light);
+                    }
+                });
+                lights = [];
+                
+                if (!lightsToggle.checked) return;
+                
+                // 灯光位置
+                const lightPositions = [
+                    // 第一层
+                    { left: '50%', bottom: '40px', color: '#ff4d4d', delay: '0s' },
+                    { left: '45%', bottom: '60px', color: '#4d79ff', delay: '0.5s' },
+                    { left: '55%', bottom: '60px', color: '#ffff4d', delay: '1s' },
+                    // 第二层
+                    { left: '50%', bottom: '120px', color: '#cc4dff', delay: '0.2s' },
+                    { left: '47%', bottom: '140px', color: '#ff4d4d', delay: '0.7s' },
+                    { left: '53%', bottom: '140px', color: '#4d79ff', delay: '1.2s' },
+                    // 第三层
+                    { left: '50%', bottom: '190px', color: '#ffff4d', delay: '0.4s' },
+                    { left: '48%', bottom: '210px', color: '#cc4dff', delay: '0.9s' },
+                    { left: '52%', bottom: '210px', color: '#ff4d4d', delay: '0.1s' },
+                    // 第四层
+                    { left: '50%', bottom: '250px', color: '#4d79ff', delay: '0.6s' },
+                    { left: '49%', bottom: '270px', color: '#ffff4d', delay: '1.1s' },
+                    // 第五层
+                    { left: '50%', bottom: '300px', color: '#cc4dff', delay: '0.3s' },
+                ];
+                
+                // 创建灯光
+                lightPositions.forEach(pos => {
+                    const light = document.createElement('div');
+                    light.className = 'light';
+                    light.style.left = pos.left;
+                    light.style.bottom = pos.bottom;
+                    light.style.backgroundColor = pos.color;
+                    light.style.boxShadow = `0 0 10px ${pos.color}`;
+                    light.style.animationDelay = pos.delay;
+                    
+                    tree.appendChild(light);
+                    lights.push(light);
+                });
+            }
+            
+            // 创建雪花
+            function createSnowflakes() {
+                // 清除现有雪花
+                while (snowContainer.firstChild) {
+                    snowContainer.removeChild(snowContainer.firstChild);
+                }
+                
+                if (!snowToggle.checked) {
+                    clearInterval(snowInterval);
+                    return;
+                }
+                
+                // 创建雪花
+                for (let i = 0; i < 50; i++) {
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    
+                    // 随机大小
+                    const size = Math.random() * 5 + 2;
+                    snowflake.style.width = `${size}px`;
+                    snowflake.style.height = `${size}px`;
+                    
+                    // 随机起始位置
+                    snowflake.style.left = `${Math.random() * 100}%`;
+                    snowflake.style.top = `${-10}px`;
+                    
+                    // 随机透明度
+                    snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+                    
+                    snowContainer.appendChild(snowflake);
+                    
+                    // 雪花动画
+                    animateSnowflake(snowflake);
+                }
+                
+                // 持续添加新雪花
+                snowInterval = setInterval(() => {
+                    if (!snowToggle.checked) {
+                        clearInterval(snowInterval);
+                        return;
+                    }
+                    
+                    // 移除屏幕底部的雪花
+                    const allSnowflakes = document.querySelectorAll('.snowflake');
+                    if (allSnowflakes.length > 100) {
+                        const oldest = allSnowflakes[0];
+                        if (oldest.parentNode) {
+                            oldest.parentNode.removeChild(oldest);
+                        }
+                    }
+                    
+                    // 添加新雪花
+                    const snowflake = document.createElement('div');
+                    snowflake.className = 'snowflake';
+                    
+                    const size = Math.random() * 5 + 2;
+                    snowflake.style.width = `${size}px`;
+                    snowflake.style.height = `${size}px`;
+                    snowflake.style.left = `${Math.random() * 100}%`;
+                    snowflake.style.top = `${-10}px`;
+                    snowflake.style.opacity = Math.random() * 0.5 + 0.3;
+                    
+                    snowContainer.appendChild(snowflake);
+                    animateSnowflake(snowflake);
+                }, 500);
+            }
+            
+            // 雪花动画
+            function animateSnowflake(snowflake) {
+                const startLeft = parseFloat(snowflake.style.left);
+                const drift = Math.random() * 40 - 20; // 随机漂移
+                const duration = Math.random() * 10 + 10; // 随机持续时间
+                
+                // 动画关键帧
+                const keyframes = [
+                    { 
+                        transform: `translate(0, 0)`, 
+                        opacity: snowflake.style.opacity 
+                    },
+                    { 
+                        transform: `translate(${drift}px, 100vh)`, 
+                        opacity: 0 
+                    }
+                ];
+                
+                const options = {
+                    duration: duration * 1000,
+                    easing: 'linear'
+                };
+                
+                snowflake.animate(keyframes, options).onfinish = () => {
+                    if (snowflake.parentNode) {
+                        snowflake.parentNode.removeChild(snowflake);
+                    }
+                };
+            }
+            
+            // 按钮事件监听
+            lightsToggle.addEventListener('change', function() {
+                initLights();
+            });
+            
+            snowToggle.addEventListener('change', function() {
+                createSnowflakes();
+            });
+            
+            starOnBtn.addEventListener('click', function() {
+                star.style.display = 'block';
+                starOnBtn.classList.add('active');
+                starOffBtn.classList.remove('active');
+            });
+            
+            starOffBtn.addEventListener('click', function() {
+                star.style.display = 'none';
+                starOffBtn.classList.add('active');
+                starOnBtn.classList.remove('active');
+            });
+            
+            giftsOnBtn.addEventListener('click', function() {
+                gifts.style.display = 'flex';
+                giftsOnBtn.classList.add('active');
+                giftsOffBtn.classList.remove('active');
+            });
+            
+            giftsOffBtn.addEventListener('click', function() {
+                gifts.style.display = 'none';
+                giftsOffBtn.classList.add('active');
+                giftsOnBtn.classList.remove('active');
+            });
+            
+            resetBtn.addEventListener('click', function() {
+                decorationColorMode = 'multi';
+                multiDecorationsBtn.classList.add('active');
+                redDecorationsBtn.classList.remove('active');
+                blueDecorationsBtn.classList.remove('active');
+                
+                lightsToggle.checked = true;
+                snowToggle.checked = false;
+                star.style.display = 'block';
+                gifts.style.display = 'flex';
+                
+                starOnBtn.classList.add('active');
+                starOffBtn.classList.remove('active');
+                giftsOnBtn.classList.add('active');
+                giftsOffBtn.classList.remove('active');
+                
+                initDecorations();
+                initLights();
+                createSnowflakes();
+            });
+            
+            randomBtn.addEventListener('click', function() {
+                decorations.forEach(decoration => {
+                    setDecorationColor(decoration);
+                });
+            });
+            
+            redDecorationsBtn.addEventListener('click', function() {
+                decorationColorMode = 'red';
+                redDecorationsBtn.classList.add('active');
+                blueDecorationsBtn.classList.remove('active');
+                multiDecorationsBtn.classList.remove('active');
+                
+                decorations.forEach(decoration => {
+                    setDecorationColor(decoration);
+                });
+            });
+            
+            blueDecorationsBtn.addEventListener('click', function() {
+                decorationColorMode = 'blue';
+                blueDecorationsBtn.classList.add('active');
+                redDecorationsBtn.classList.remove('active');
+                multiDecorationsBtn.classList.remove('active');
+                
+                decorations.forEach(decoration => {
+                    setDecorationColor(decoration);
+                });
+            });
+            
+            multiDecorationsBtn.addEventListener('click', function() {
+                decorationColorMode = 'multi';
+                multiDecorationsBtn.classList.add('active');
+                redDecorationsBtn.classList.remove('active');
+                blueDecorationsBtn.classList.remove('active');
+                
+                decorations.forEach(decoration => {
+                    setDecorationColor(decoration);
+                });
+            });
+            
+            // 初始化
+            initDecorations();
+            initLights();
+            createSnowflakes();
+        });
+    </script>
+</body>
+</html>
